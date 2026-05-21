@@ -1,0 +1,29 @@
+{
+  "name": "propel-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "next": "^14.0.0",
+    "typescript": "^5.1.6",
+    "axios": "^1.5.0",
+    "framer-motion": "^10.16.4",
+    "tailwindcss": "^3.3.3",
+    "three": "^r155",
+    "d3": "^7.8.5",
+    "stripe": "^12.15.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/node": "^20.4.2",
+    "@types/d3": "^7.4.0",
+    "@types/three": "^r128.0.0"
+  }
+}
