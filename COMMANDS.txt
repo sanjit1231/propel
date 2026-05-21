@@ -1,0 +1,154 @@
+================================================================================
+                    PROPEL DEPLOYMENT - COPY & PASTE COMMANDS
+================================================================================
+
+EMAIL: az.sanjitk@gmail.com
+PASSWORD: (You create this during signup)
+
+================================================================================
+                          STEP 1: GITHUB SETUP
+================================================================================
+
+1. Go to: https://github.com/signup
+2. Sign up with:
+   - Email: az.sanjitk@gmail.com
+   - Password: (CREATE YOUR OWN - SAVE IT!)
+   - Username: sanjit-propel (or whatever you want)
+3. Verify email
+4. Go to: https://github.com/new
+5. Create repo:
+   - Name: propel
+   - Description: Student Success Platform
+   - Visibility: Public
+   - DO NOT initialize with README
+6. Click "Create repository"
+
+================================================================================
+                          STEP 2: PUSH CODE TO GITHUB
+================================================================================
+
+Copy and paste EACH command below into Terminal (one at a time):
+
+Command 1:
+cd /Users/skrishnamurthy26/Documents/website/propel
+
+Command 2:
+git config --global user.name "Your Full Name"
+
+Command 3:
+git config --global user.email "az.sanjitk@gmail.com"
+
+Command 4:
+git remote add origin https://github.com/YOUR_USERNAME/propel.git
+
+⚠️  REPLACE: YOUR_USERNAME with your actual GitHub username!
+
+Command 5:
+git branch -M main
+
+Command 6:
+git push -u origin main
+
+When prompted:
+- Username: YOUR_USERNAME (or your email)
+- Password: (the password you created)
+
+Wait for: "Branch 'main' set up to track remote branch 'main' from origin."
+
+================================================================================
+                          STEP 3: VERCEL DEPLOYMENT
+================================================================================
+
+1. Go to: https://vercel.com/signup
+2. Click "Continue with GitHub"
+3. Authorize Vercel
+4. Go to: https://vercel.com/new
+5. Click "Import Project"
+6. Paste GitHub URL:
+   https://github.com/YOUR_USERNAME/propel
+
+⚠️  REPLACE: YOUR_USERNAME with your actual GitHub username!
+
+7. Click "Import"
+8. Configure:
+   - Root Directory: Select "frontend" from dropdown
+   - Environment Variables:
+     * Key: NEXT_PUBLIC_API_URL
+     * Value: http://localhost:5000
+     * Click "Add"
+9. Click "Deploy"
+
+Wait 3-5 minutes for deployment...
+
+When done, you'll see:
+✓ Successfully deployed to:
+  https://propel-abc123.vercel.app
+
+================================================================================
+                          FUTURE UPDATES
+================================================================================
+
+To update your live app, use:
+
+cd /Users/skrishnamurthy26/Documents/website/propel
+git add .
+git commit -m "Your change description"
+git push origin main
+
+Vercel auto-deploys! (takes 2-3 minutes)
+
+================================================================================
+                          IMPORTANT NOTES
+================================================================================
+
+✅ SAVE YOUR GITHUB PASSWORD
+   You'll need it when pushing code
+
+✅ SAVE YOUR VERCEL URL
+   Share this with friends!
+
+✅ EMAIL VERIFICATION
+   Check az.sanjitk@gmail.com for verification links
+
+✅ REPLACE YOUR_USERNAME
+   In commands 4 and 6 above, use your actual GitHub username
+
+✅ PUBLIC REPO
+   Keep repo public so Vercel can access it
+
+✅ FRONTEND ONLY
+   Vercel deploys the frontend (React app)
+   Backend is optional (can add later)
+
+================================================================================
+                          TROUBLESHOOTING
+================================================================================
+
+"Permission denied (publickey)"
+→ Make sure GitHub password is correct
+
+"Root directory not found"
+→ Select "frontend" folder, not "/frontend"
+
+"Repository not found"
+→ Check GitHub username is correct
+→ Verify repo is public
+→ Wait a moment and retry
+
+"Still building..."
+→ Deployment takes 3-5 minutes
+→ Refresh page after waiting
+
+"API errors"
+→ Normal - backend not deployed
+→ All tools work with mock data!
+
+================================================================================
+                          YOU'VE GOT THIS! 🚀
+================================================================================
+
+Follow these steps in order and your app will be LIVE in 15 minutes!
+
+Need help? See DEPLOY_GUIDE.md for detailed explanations.
+
+Questions about a specific step? Read the detailed DEPLOY_GUIDE.md instead!
