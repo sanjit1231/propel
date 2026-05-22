@@ -34,7 +34,7 @@ export default function Home() {
   ];
 
   return (
-    <motion.div initial="initial" animate="animate" exit="exit" variants={pageVariants} className="min-h-screen bg-[#0a0a0a] text-white overflow-hidden">
+    <motion.div initial="initial" animate="animate" exit="exit" variants={pageVariants} className="min-h-screen bg-black text-white overflow-hidden" style={{ backgroundColor: '#0a0a0a' }}>
       {/* Premium Zeabur-style Gradient Background */}
       <div className="fixed inset-0 pointer-events-none">
         {/* Top right glow - vibrant purple */}
@@ -46,7 +46,7 @@ export default function Home() {
       </div>
 
       {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-[#0a0a0a]/90">
+      <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-black/90" style={{ backgroundColor: 'rgba(10, 10, 10, 0.9)' }}>
         <div className="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
           <motion.h1 initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="text-2xl font-bold bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">
             Propel

@@ -59,7 +59,7 @@ export default function Dashboard() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-[#0a0a0a] text-white">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-black text-white" style={{ backgroundColor: '#0a0a0a' }}>
       {/* Premium Zeabur Background */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-b from-violet-600 via-purple-600 to-transparent rounded-full filter blur-3xl opacity-40 animate-float" />
@@ -67,7 +67,7 @@ export default function Dashboard() {
       </div>
 
       {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 border-b border-white/10 backdrop-blur-xl bg-[#0a0a0a]/90">
+      <nav className="fixed top-0 w-full z-50 border-b border-white/10 backdrop-blur-xl bg-black/90" style={{ backgroundColor: 'rgba(10, 10, 10, 0.9)' }}>
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-2">
             <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">
