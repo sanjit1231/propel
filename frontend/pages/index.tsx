@@ -1,476 +1,1071 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
+import Head from 'next/head';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-
-const COLLEGES = [
-  { name: 'MIT', category: 'reach', sat: '1520-1560', gpa: '3.9-4.0' },
-  { name: 'UC San Diego', category: 'target', sat: '1310-1510', gpa: '3.7-3.9' },
-  { name: 'UChicago', category: 'reach', sat: '1510-1560', gpa: '3.9-4.0' },
-  { name: 'Georgia Tech', category: 'target', sat: '1450-1570', gpa: '3.9-4.0' },
-  { name: 'U of Michigan', category: 'likely', sat: '1370-1530', gpa: '3.8-3.9' },
-  { name: 'ASU Barrett', category: 'likely', sat: '1330-1510', gpa: '3.8-3.9' },
-];
-
-const FRQS = [
-  {
-    subject: 'Physics 2',
-    title: 'Charged Particle Motion',
-    question: 'A charged particle with charge q = 1.6 × 10⁻¹⁹ C enters a magnetic field B = 0.5 T perpendicular to its velocity v = 2 × 10⁶ m/s. Calculate the radius of circular motion.',
-    solution: 'Using the Lorentz force and circular motion equations:\nF = qvB = mv²/r\nr = mv/(qB)\nFor an electron (m = 9.1 × 10⁻³¹ kg):\nr = (9.1 × 10⁻³¹ × 2 × 10⁶)/(1.6 × 10⁻¹⁹ × 0.5)\nr ≈ 0.023 m or 2.3 cm',
-  },
-];
-
-const FLASHCARDS = [
-  {
-    term: 'Photosynthesis',
-    difficulty: 'Medium',
-    color: 'from-green-500 to-emerald-500',
-  },
-  {
-    term: 'Mitochondria',
-    difficulty: 'Easy',
-    color: 'from-blue-500 to-cyan-500',
-  },
-  {
-    term: 'Genetics',
-    difficulty: 'Hard',
-    color: 'from-purple-500 to-pink-500',
-  },
-];
-
-interface ParallaxPosition {
-  x: number;
-  y: number;
-}
 
 export default function Home() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [parallaxPos, setParallaxPos] = useState<ParallaxPosition>({ x: 0, y: 0 });
-  const [sliderValues, setSliderValues] = useState({
-    velocity: 45,
-    bField: 0.5,
-    charge: 1.6,
-  });
-  const [visibleSections, setVisibleSections] = useState<Record<string, boolean>>({});
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Parallax effect
   useEffect(() => {
+    // Parallax orbs on mousemove
+    const orb1 = document.querySelector('.orb-1');
+    const orb2 = document.querySelector('.orb-2');
     const handleMouseMove = (e: MouseEvent) => {
-      const { clientX, clientY } = e;
-      const x = (clientX / window.innerWidth - 0.5) * 40;
-      const y = (clientY / window.innerHeight - 0.5) * 40;
-      setParallaxPos({ x, y });
+      const x = (e.clientX / window.innerWidth - 0.5) * 20;
+      const y = (e.clientY / window.innerHeight - 0.5) * 10;
+      if (orb1) orb1.style.transform = `translateX(calc(-50% + ${x}px)) translateY(${y}px)`;
+      if (orb2) orb2.style.transform = `translate(${-x * 0.5}px, ${-y * 0.5}px)`;
     };
+    document.addEventListener('mousemove', handleMouseMove);
 
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  // Intersection Observer for scroll animations
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setVisibleSections((prev) => ({
-              ...prev,
-              [entry.target.id]: true,
-            }));
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    if (containerRef.current) {
-      containerRef.current.querySelectorAll('[data-observe]').forEach((el) => {
-        observer.observe(el);
+    // Range slider live update
+    const sliders = document.querySelectorAll('.dark-range') as NodeListOf<HTMLInputElement>;
+    sliders.forEach(range => {
+      range.addEventListener('input', e => {
+        const target = e.target as HTMLInputElement;
+        const val = parseInt(target.value);
+        const valEl = target.closest('.sim-controls')?.querySelector('.sim-control-val');
+        if (valEl) {
+          if (valEl.textContent?.includes('m/s')) valEl.textContent = (val * 0.05).toFixed(1) + '×10⁶ m/s';
+          else if (valEl.textContent?.includes('T')) valEl.textContent = (val * 0.01).toFixed(2) + ' T';
+        }
       });
-    }
+    });
 
-    return () => observer.disconnect();
+    // Intersection observer for fade-in on scroll
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          (entry.target as HTMLElement).style.opacity = '1';
+          (entry.target as HTMLElement).style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    const observeElements = document.querySelectorAll('.feature-section, .features-grid-section');
+    observeElements.forEach(el => {
+      (el as HTMLElement).style.opacity = '0';
+      (el as HTMLElement).style.transform = 'translateY(30px)';
+      (el as HTMLElement).style.transition = 'opacity 0.7s ease, transform 0.7s ease';
+      observer.observe(el);
+    });
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      observer.disconnect();
+    };
   }, []);
-
-  const handleSliderChange = (key: string, value: number) => {
-    setSliderValues((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-black text-white" style={{ backgroundColor: '#030312' }}>
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-black/80 border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">
-            Propel
-          </h1>
-          <div className="flex gap-4 items-center">
-            <Link href="/login" className="px-4 py-2 text-slate-300 hover:text-white transition text-sm font-medium">
-              Login
-            </Link>
-            <Link href="/signup" className="px-6 py-2 bg-gradient-to-r from-violet-600 to-pink-600 hover:from-violet-500 hover:to-pink-500 rounded-full font-semibold transition text-sm shadow-lg">
-              Sign Up
-            </Link>
-          </div>
+    <>
+      <Head>
+        <title>Propel — Master Your Academic Goals</title>
+        <meta name="description" content="Premium student platform for AP exams, college admissions, and smarter studying" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+        <style>{`
+          *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+          :root {
+            --bg: #030312;
+            --bg2: #07071f;
+            --surface: rgba(255,255,255,0.03);
+            --border: rgba(255,255,255,0.08);
+            --border-hover: rgba(255,255,255,0.18);
+            --text: #ffffff;
+            --text-muted: rgba(255,255,255,0.55);
+            --text-subtle: rgba(255,255,255,0.35);
+            --violet: #7c3aed;
+            --violet-light: #a78bfa;
+            --violet-glow: rgba(124, 58, 237, 0.4);
+            --indigo: #4f46e5;
+            --indigo-glow: rgba(79,70,229,0.25);
+            --accent: #c4b5fd;
+            --radius: 12px;
+            --radius-lg: 20px;
+          }
+
+          html { scroll-behavior: smooth; }
+
+          body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+          }
+
+          /* ── BG EFFECTS ── */
+          .bg-layer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+          }
+          .orb-1 {
+            position: absolute;
+            top: -15%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 900px;
+            height: 600px;
+            background: radial-gradient(ellipse, rgba(124,58,237,0.28) 0%, rgba(79,70,229,0.12) 40%, transparent 70%);
+            filter: blur(1px);
+          }
+          .orb-2 {
+            position: absolute;
+            bottom: 10%;
+            left: -20%;
+            width: 600px;
+            height: 500px;
+            background: radial-gradient(ellipse, rgba(79,70,229,0.2) 0%, transparent 65%);
+          }
+          .orb-3 {
+            position: absolute;
+            top: 40%;
+            right: -10%;
+            width: 500px;
+            height: 400px;
+            background: radial-gradient(ellipse, rgba(124,58,237,0.15) 0%, transparent 65%);
+          }
+          .grid-overlay {
+            position: absolute;
+            inset: 0;
+            background-image:
+              linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 0%, transparent 100%);
+          }
+
+          /* ── NAV ── */
+          nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+            height: 64px;
+            background: rgba(3,3,18,0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+          }
+          .nav-logo {
+            display: flex; align-items: center; gap: 8px;
+            text-decoration: none;
+            font-size: 18px; font-weight: 700; color: #fff;
+            letter-spacing: -0.3px;
+          }
+          .logo-icon {
+            width: 28px; height: 28px;
+            background: linear-gradient(135deg, var(--violet), var(--indigo));
+            border-radius: 7px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 800;
+          }
+          .nav-links {
+            display: flex; gap: 32px; list-style: none;
+          }
+          .nav-links a {
+            font-size: 14px; font-weight: 400;
+            color: var(--text-muted); text-decoration: none;
+            transition: color .2s;
+          }
+          .nav-links a:hover { color: #fff; }
+          .nav-actions { display: flex; align-items: center; gap: 12px; }
+          .btn-ghost {
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px; font-weight: 500;
+            color: var(--text-muted);
+            background: none; border: none;
+            padding: 8px 16px; cursor: pointer;
+            text-decoration: none;
+            transition: color .2s;
+          }
+          .btn-ghost:hover { color: #fff; }
+          .btn-primary {
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px; font-weight: 600;
+            color: #fff;
+            background: linear-gradient(135deg, var(--violet), var(--indigo));
+            border: none; border-radius: 8px;
+            padding: 8px 20px; cursor: pointer;
+            text-decoration: none;
+            transition: opacity .2s, transform .15s;
+          }
+          .btn-primary:hover { opacity: .88; transform: translateY(-1px); }
+
+          /* ── MAIN CONTENT ── */
+          main { position: relative; z-index: 1; }
+
+          /* ── HERO ── */
+          .hero {
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            text-align: center;
+            padding: 120px 5% 80px;
+          }
+          .badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(124,58,237,0.12);
+            border: 1px solid rgba(124,58,237,0.3);
+            border-radius: 999px;
+            padding: 5px 14px 5px 8px;
+            margin-bottom: 36px;
+            font-size: 13px; font-weight: 500;
+            animation: fadeUp .6s ease both;
+          }
+          .badge-new {
+            background: var(--violet);
+            border-radius: 999px;
+            padding: 2px 9px;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #fff;
+          }
+          .badge-text { color: var(--accent); }
+          .badge-arrow { color: var(--accent); opacity: .7; }
+
+          h1 {
+            font-size: clamp(48px, 7vw, 80px);
+            font-weight: 800;
+            line-height: 1.08;
+            letter-spacing: -2.5px;
+            max-width: 700px;
+            margin-bottom: 24px;
+            animation: fadeUp .6s .1s ease both;
+          }
+          h1 .grad {
+            background: linear-gradient(135deg, #fff 0%, var(--accent) 60%, var(--violet-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+          }
+
+          .hero-sub {
+            font-size: 18px; font-weight: 400;
+            color: var(--text-muted);
+            max-width: 460px;
+            margin-bottom: 44px;
+            line-height: 1.65;
+            animation: fadeUp .6s .2s ease both;
+          }
+
+          .hero-ctas {
+            display: flex; gap: 14px; align-items: center;
+            animation: fadeUp .6s .3s ease both;
+            margin-bottom: 80px;
+          }
+          .btn-cta-primary {
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px; font-weight: 600;
+            color: #0a0a14;
+            background: #fff;
+            border: none; border-radius: 999px;
+            padding: 13px 30px; cursor: pointer;
+            text-decoration: none;
+            transition: opacity .2s, transform .15s, box-shadow .2s;
+            box-shadow: 0 0 0 0 rgba(255,255,255,0);
+          }
+          .btn-cta-primary:hover {
+            opacity: .92; transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255,255,255,0.12);
+          }
+          .btn-cta-secondary {
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px; font-weight: 500;
+            color: var(--text-muted);
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 12px 28px; cursor: pointer;
+            text-decoration: none;
+            transition: color .2s, border-color .2s, transform .15s;
+          }
+          .btn-cta-secondary:hover {
+            color: #fff; border-color: var(--border-hover);
+            transform: translateY(-2px);
+          }
+
+          /* ── STATS ── */
+          .stats {
+            display: flex; gap: 0;
+            animation: fadeUp .6s .4s ease both;
+            margin-bottom: 0;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+          }
+          .stat {
+            padding: 20px 48px;
+            text-align: center;
+            position: relative;
+          }
+          .stat + .stat::before {
+            content: '';
+            position: absolute; left: 0; top: 20%; bottom: 20%;
+            width: 1px; background: var(--border);
+          }
+          .stat-num {
+            font-size: 32px; font-weight: 800;
+            background: linear-gradient(135deg, #fff, var(--accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+          }
+          .stat-label { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+          /* ── LOGO ROW ── */
+          .logo-row {
+            padding: 80px 5% 0;
+            text-align: center;
+          }
+          .logo-row-label {
+            font-size: 13px; font-weight: 400; letter-spacing: 0.5px;
+            color: var(--text-subtle); text-transform: uppercase;
+            margin-bottom: 32px;
+          }
+          .logos {
+            display: flex; align-items: center; justify-content: center;
+            gap: 40px; flex-wrap: wrap;
+          }
+          .logo-item {
+            font-size: 15px; font-weight: 600;
+            color: rgba(255,255,255,0.2);
+            letter-spacing: -0.3px;
+            transition: color .3s;
+          }
+          .logo-item:hover { color: rgba(255,255,255,0.55); }
+          .logo-dot {
+            display: inline-block;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--violet);
+            margin-right: 6px;
+            vertical-align: middle;
+            opacity: 0.6;
+          }
+
+          /* ── DIVIDER ── */
+          .section-divider {
+            margin: 80px 5% 0;
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+          }
+
+          /* ── FEATURE SECTIONS ── */
+          .feature-section {
+            padding: 100px 5%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+          }
+          .feature-section.reverse { direction: rtl; }
+          .feature-section.reverse > * { direction: ltr; }
+
+          .feature-label {
+            font-size: 12px; font-weight: 600;
+            letter-spacing: 1.2px; text-transform: uppercase;
+            color: var(--violet-light);
+            margin-bottom: 16px;
+          }
+          .feature-title {
+            font-size: clamp(28px, 4vw, 42px);
+            font-weight: 800;
+            letter-spacing: -1.2px;
+            line-height: 1.12;
+            margin-bottom: 20px;
+          }
+          .feature-desc {
+            font-size: 16px; font-weight: 400;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 32px;
+          }
+          .feature-list {
+            list-style: none;
+            display: flex; flex-direction: column; gap: 12px;
+          }
+          .feature-list li {
+            font-size: 14px; color: var(--text-muted);
+            display: flex; align-items: center; gap: 10px;
+          }
+          .feature-list li::before {
+            content: '';
+            width: 16px; height: 16px; flex-shrink: 0;
+            border-radius: 50%;
+            background: rgba(124,58,237,0.2);
+            border: 1px solid rgba(124,58,237,0.5);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8l3 3 7-7' stroke='%23a78bfa' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-size: contain;
+          }
+          .feature-link {
+            font-size: 14px; font-weight: 500;
+            color: var(--violet-light); text-decoration: none;
+            display: inline-flex; align-items: center; gap: 6px;
+            transition: gap .2s;
+          }
+          .feature-link:hover { gap: 10px; }
+
+          /* ── VISUAL CARDS ── */
+          .feature-visual {
+            position: relative;
+          }
+          .card-dark {
+            background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+          }
+          .card-dark::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(124,58,237,0.5), transparent);
+          }
+          .card-glow {
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(124,58,237,0.15), transparent 70%);
+            pointer-events: none;
+          }
+
+          /* Terminal */
+          .terminal {
+            background: #0d0d1a;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 10px;
+            overflow: hidden;
+          }
+          .terminal-bar {
+            display: flex; align-items: center; gap: 6px;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.03);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+          }
+          .dot { width: 10px; height: 10px; border-radius: 50%; }
+          .dot-red { background: #ff5f56; }
+          .dot-yellow { background: #ffbd2e; }
+          .dot-green { background: #27c93f; }
+          .terminal-body { padding: 18px 20px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.8; }
+          .t-dim { color: rgba(255,255,255,0.2); }
+          .t-muted { color: rgba(255,255,255,0.4); }
+          .t-white { color: #fff; }
+          .t-violet { color: #a78bfa; }
+          .t-green { color: #34d399; }
+          .t-amber { color: #fbbf24; }
+          .t-blue { color: #60a5fa; }
+          .t-pink { color: #f472b6; }
+
+          /* College card */
+          .college-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+          }
+          .college-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            transition: border-color .2s, background .2s;
+            cursor: default;
+          }
+          .college-card:hover {
+            border-color: rgba(124,58,237,0.35);
+            background: rgba(124,58,237,0.05);
+          }
+          .college-name { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+          .college-rate {
+            font-size: 11px; color: var(--text-subtle);
+            display: flex; align-items: center; justify-content: space-between;
+          }
+          .rate-badge {
+            font-size: 11px; font-weight: 600;
+            padding: 2px 8px; border-radius: 999px;
+          }
+          .rate-reach { background: rgba(239,68,68,0.15); color: #f87171; }
+          .rate-target { background: rgba(251,191,36,0.12); color: #fbbf24; }
+          .rate-safety { background: rgba(52,211,153,0.12); color: #34d399; }
+
+          /* Flashcard */
+          .flashcard-wrap {
+            perspective: 800px; margin-bottom: 16px;
+          }
+          .flashcard {
+            background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(79,70,229,0.08));
+            border: 1px solid rgba(124,58,237,0.25);
+            border-radius: var(--radius);
+            padding: 24px;
+            text-align: center;
+          }
+          .flashcard-q { font-size: 12px; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 14px; }
+          .flashcard-text { font-size: 15px; color: #fff; line-height: 1.5; }
+          .subject-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+          .tag {
+            font-size: 12px; font-weight: 500;
+            padding: 5px 12px; border-radius: 999px;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+          }
+          .tag-active {
+            background: rgba(124,58,237,0.15);
+            border-color: rgba(124,58,237,0.3);
+            color: var(--accent);
+          }
+
+          /* Physics sim */
+          .sim-canvas {
+            width: 100%; height: 200px;
+            background: #080818;
+            border-radius: 10px;
+            position: relative; overflow: hidden;
+            margin-bottom: 14px;
+          }
+          .sim-grid {
+            position: absolute; inset: 0;
+            background-image:
+              linear-gradient(rgba(124,58,237,0.1) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(124,58,237,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+          }
+          .sim-orb {
+            position: absolute;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #7c3aed, #4f46e5);
+            box-shadow: 0 0 30px rgba(124,58,237,0.6);
+            top: 50%; left: 40%; transform: translate(-50%,-50%);
+            animation: orbit 4s linear infinite;
+          }
+          .sim-orb2 {
+            position: absolute;
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #f472b6, #ec4899);
+            box-shadow: 0 0 14px rgba(244,114,182,0.7);
+            top: 50%; left: 40%; transform: translate(-50%,-50%);
+            animation: orbit 4s linear infinite, orbit2 1.8s linear infinite;
+            transform-origin: 60px 0;
+          }
+          .sim-trail {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 40% 50%, rgba(124,58,237,0.08), transparent 50%);
+          }
+          @keyframes orbit {
+            from { transform: translate(-50%,-50%) rotate(0deg) translateX(70px) rotate(0deg); }
+            to { transform: translate(-50%,-50%) rotate(360deg) translateX(70px) rotate(-360deg); }
+          }
+          .sim-controls {
+            display: flex; gap: 8px; align-items: center;
+          }
+          .sim-control-label { font-size: 12px; color: var(--text-subtle); }
+          .sim-control-val { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--violet-light); margin-left: auto; }
+          input[type=range].dark-range {
+            -webkit-appearance: none;
+            width: 100%; height: 3px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 999px; outline: none;
+            flex: 1;
+          }
+          input[type=range].dark-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: var(--violet);
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--violet-glow);
+          }
+
+          /* ── FEATURES GRID ── */
+          .features-grid-section {
+            padding: 0 5% 100px;
+            max-width: 1200px; margin: 0 auto;
+          }
+          .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+          }
+          .feat-card {
+            background: var(--bg);
+            padding: 32px 28px;
+            transition: background .25s;
+            cursor: default;
+          }
+          .feat-card:hover { background: rgba(124,58,237,0.04); }
+          .feat-icon {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            background: rgba(124,58,237,0.12);
+            border: 1px solid rgba(124,58,237,0.2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; margin-bottom: 16px;
+          }
+          .feat-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+          .feat-card p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+          /* ── CTA SECTION ── */
+          .cta-section {
+            padding: 120px 5%;
+            text-align: center;
+            position: relative;
+          }
+          .cta-inner {
+            max-width: 680px; margin: 0 auto;
+            background: linear-gradient(145deg, rgba(124,58,237,0.1), rgba(79,70,229,0.05));
+            border: 1px solid rgba(124,58,237,0.2);
+            border-radius: 28px;
+            padding: 72px 48px;
+            position: relative;
+            overflow: hidden;
+          }
+          .cta-inner::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(167,139,250,0.6), transparent);
+          }
+          .cta-inner::after {
+            content: '';
+            position: absolute;
+            top: -80px; left: 50%; transform: translateX(-50%);
+            width: 400px; height: 200px;
+            background: radial-gradient(ellipse, rgba(124,58,237,0.2), transparent 70%);
+            pointer-events: none;
+          }
+          .cta-label {
+            font-size: 12px; font-weight: 600; letter-spacing: 1.5px;
+            text-transform: uppercase; color: var(--violet-light);
+            margin-bottom: 20px;
+          }
+          .cta-section h2 {
+            font-size: clamp(32px, 5vw, 52px);
+            font-weight: 800; letter-spacing: -1.5px;
+            line-height: 1.1; margin-bottom: 18px;
+          }
+          .cta-section p {
+            font-size: 17px; color: var(--text-muted);
+            line-height: 1.65; margin-bottom: 40px;
+          }
+          .cta-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+          /* ── FOOTER ── */
+          footer {
+            border-top: 1px solid var(--border);
+            padding: 40px 5%;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 20px;
+          }
+          .footer-left { display: flex; align-items: center; gap: 12px; }
+          .footer-text { font-size: 13px; color: var(--text-subtle); }
+          .footer-links { display: flex; gap: 24px; }
+          .footer-links a { font-size: 13px; color: var(--text-subtle); text-decoration: none; transition: color .2s; }
+          .footer-links a:hover { color: var(--text-muted); }
+          .footer-pricing {
+            font-size: 13px; color: var(--text-subtle);
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 6px 14px;
+          }
+
+          /* ── ANIMATIONS ── */
+          @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+
+          /* ── RESPONSIVE ── */
+          @media (max-width: 900px) {
+            .feature-section { grid-template-columns: 1fr; gap: 40px; }
+            .feature-section.reverse { direction: ltr; }
+            .features-grid { grid-template-columns: 1fr 1fr; }
+            nav .nav-links { display: none; }
+            .stats .stat { padding: 20px 24px; }
+          }
+          @media (max-width: 600px) {
+            .features-grid { grid-template-columns: 1fr; }
+            .hero-ctas { flex-direction: column; }
+            .stats { flex-direction: column; }
+            .stat + .stat::before { display: none; }
+            .college-grid { grid-template-columns: 1fr; }
+            .cta-inner { padding: 48px 24px; }
+          }
+        `}</style>
+      </Head>
+
+      {/* Background layer */}
+      <div className="bg-layer">
+        <div className="orb-1"></div>
+        <div className="orb-2"></div>
+        <div className="orb-3"></div>
+        <div className="grid-overlay"></div>
+      </div>
+
+      {/* NAV */}
+      <nav>
+        <Link href="/" className="nav-logo">
+          <div className="logo-icon">P</div>
+          Propel
+        </Link>
+        <ul className="nav-links">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#tools">Tools</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+        </ul>
+        <div className="nav-actions">
+          <Link href="/login" className="btn-ghost">Login</Link>
+          <Link href="/signup" className="btn-primary">Sign Up</Link>
         </div>
       </nav>
 
-      {/* Animated Background Orbs */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div
-          className="absolute w-96 h-96 bg-gradient-to-b from-violet-600 via-purple-600 to-transparent rounded-full filter blur-3xl opacity-40"
-          style={{
-            top: '-10%',
-            right: '-5%',
-            transform: `translate(${parallaxPos.x * 0.3}px, ${parallaxPos.y * 0.3}px)`,
-            transition: 'transform 0.1s ease-out',
-          }}
-        />
-        <div
-          className="absolute w-96 h-96 bg-gradient-to-t from-purple-600 via-violet-600 to-transparent rounded-full filter blur-3xl opacity-40"
-          style={{
-            bottom: '-10%',
-            left: '-5%',
-            transform: `translate(${parallaxPos.x * 0.2}px, ${parallaxPos.y * 0.2}px)`,
-            transition: 'transform 0.1s ease-out',
-          }}
-        />
-        <div
-          className="absolute w-80 h-80 bg-gradient-to-l from-pink-600 via-purple-600 to-transparent rounded-full filter blur-3xl opacity-30"
-          style={{
-            top: '33%',
-            right: '25%',
-            transform: `translate(${parallaxPos.x * 0.15}px, ${parallaxPos.y * 0.15}px)`,
-            transition: 'transform 0.1s ease-out',
-          }}
-        />
-      </div>
+      {/* HERO */}
+      <main>
+        <section className="hero">
+          <div className="badge">
+            <span className="badge-new">NEW</span>
+            <span className="badge-text">Premium Student Platform</span>
+            <span className="badge-arrow">→</span>
+          </div>
 
-      {/* Hero Section */}
-      <motion.section
-        className="min-h-screen flex items-center justify-center pt-32 pb-10 relative z-10"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-      >
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="mb-8"
-          >
-            <span className="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-xs font-semibold text-slate-300 hover:bg-white/10 transition inline-block tracking-wide">
-              Premium Student Platform
-            </span>
-          </motion.div>
+          <h1>Master Your<br /><span className="grad">Academic Goals</span></h1>
 
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="text-6xl md:text-7xl font-bold mb-8 leading-tight"
-          >
-            Master Your
-            <br />
-            <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              Academic Goals
-            </span>
-          </motion.h2>
+          <p className="hero-sub">
+            Everything you need for AP exams, college admissions,
+            physics mastery, and smarter studying — in one intelligent platform.
+          </p>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            className="text-lg md:text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed font-light"
-          >
-            Everything you need for AP exams, college admissions, physics mastery, and effective studying in one intelligent platform.
-          </motion.p>
+          <div className="hero-ctas">
+            <Link href="/signup" className="btn-cta-primary">Get Started Free</Link>
+            <a href="#features" className="btn-cta-secondary">See what&apos;s inside →</a>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center mb-20"
-          >
-            <Link
-              href="/signup"
-              className="px-8 py-3 bg-white text-black rounded-full font-semibold hover:bg-slate-100 transition shadow-xl hover:shadow-2xl inline-block"
-            >
-              Get Started Free
-            </Link>
-            <button className="px-8 py-3 border border-white/30 rounded-full font-semibold hover:bg-white/10 hover:border-white/50 transition text-white">
-              Learn More
-            </button>
-          </motion.div>
-
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-            className="grid grid-cols-3 gap-6 md:gap-12 pt-10 border-t border-white/5"
-          >
-            <div className="text-center">
-              <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-violet-400 to-violet-500 bg-clip-text text-transparent">
-                50+
-              </p>
-              <p className="text-slate-400 text-sm mt-3 font-medium">Real AP FRQs</p>
+          <div className="stats">
+            <div className="stat">
+              <div className="stat-num">50+</div>
+              <div className="stat-label">Real AP FRQs</div>
             </div>
-            <div className="text-center">
-              <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-400 to-purple-500 bg-clip-text text-transparent">
-                30+
-              </p>
-              <p className="text-slate-400 text-sm mt-3 font-medium">Real Colleges</p>
+            <div className="stat">
+              <div className="stat-num">30+</div>
+              <div className="stat-label">Real Colleges</div>
             </div>
-            <div className="text-center">
-              <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-pink-400 to-pink-500 bg-clip-text text-transparent">
-                250+
-              </p>
-              <p className="text-slate-400 text-sm mt-3 font-medium">Study Cards</p>
+            <div className="stat">
+              <div className="stat-num">250+</div>
+              <div className="stat-label">Study Cards</div>
             </div>
-          </motion.div>
-        </div>
-      </motion.section>
-
-      {/* Features Section */}
-      <motion.section
-        id="features"
-        data-observe
-        className="py-32 relative z-10"
-        initial={{ opacity: 0 }}
-        animate={visibleSections['features'] ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.h3
-            initial={{ opacity: 0, y: 20 }}
-            animate={visibleSections['features'] ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6 }}
-            className="text-5xl md:text-6xl font-bold text-center mb-24 leading-tight"
-          >
-            Powerful tools for <br />{' '}
-            <span className="bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">
-              student success
-            </span>
-          </motion.h3>
-
-          {/* College Calculator Feature */}
-          <motion.div
-            id="college-feature"
-            data-observe
-            initial={{ opacity: 0, y: 20 }}
-            animate={visibleSections['college-feature'] ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6 }}
-            className="mb-16 group cursor-pointer p-8 rounded-2xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] transition-all duration-300 backdrop-blur-sm overflow-hidden relative"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 opacity-0 group-hover:opacity-10 transition-opacity pointer-events-none" />
-            <div className="relative z-10">
-              <div className="text-5xl mb-6">🎓</div>
-              <h4 className="text-2xl font-bold mb-3">College Calculator</h4>
-              <p className="text-slate-400 text-base leading-relaxed mb-6">
-                Advanced admissions calculator with 30+ real colleges, acceptance rates, and AI-powered school matching
-              </p>
-              <div className="mt-8 bg-white/5 rounded-lg p-6 border border-white/10">
-                <p className="text-xs text-slate-400 mb-4 font-mono">Reach / Target / Safety</p>
-                <div className="grid grid-cols-3 gap-4">
-                  {COLLEGES.map((college) => (
-                    <div
-                      key={college.name}
-                      className={`p-3 rounded-lg border text-xs ${
-                        college.category === 'reach'
-                          ? 'border-red-500/30 bg-red-500/5'
-                          : college.category === 'target'
-                          ? 'border-yellow-500/30 bg-yellow-500/5'
-                          : 'border-green-500/30 bg-green-500/5'
-                      }`}
-                    >
-                      <p className="font-semibold">{college.name}</p>
-                      <p className="text-slate-400 text-xs mt-1">{college.sat}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            <div className="stat">
+              <div className="stat-num">5</div>
+              <div className="stat-label">AP Subjects</div>
             </div>
-          </motion.div>
+          </div>
+        </section>
 
-          {/* AP Prep Feature */}
-          <motion.div
-            id="ap-feature"
-            data-observe
-            initial={{ opacity: 0, y: 20 }}
-            animate={visibleSections['ap-feature'] ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6 }}
-            className="mb-16 group cursor-pointer p-8 rounded-2xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] transition-all duration-300 backdrop-blur-sm overflow-hidden relative"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 opacity-0 group-hover:opacity-10 transition-opacity pointer-events-none" />
-            <div className="relative z-10">
-              <div className="text-5xl mb-6">📚</div>
-              <h4 className="text-2xl font-bold mb-3">AP Exam Prep</h4>
-              <p className="text-slate-400 text-base leading-relaxed mb-6">
-                50+ real FRQs across 5 subjects with detailed solutions, hints, and practice tracking
-              </p>
-              <div className="mt-8 bg-white/5 rounded-lg p-6 border border-white/10 font-mono text-xs">
-                <div className="text-slate-300 mb-3">
-                  <p className="text-slate-400">Physics 2 • FRQ 3</p>
-                  <p className="mt-2 text-slate-300">{FRQS[0].question}</p>
-                </div>
-                <div className="bg-black/50 p-4 rounded mt-4 border border-white/10">
-                  <p className="text-green-400 whitespace-pre-wrap">{FRQS[0].solution}</p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Study Tool Feature */}
-          <motion.div
-            id="study-feature"
-            data-observe
-            initial={{ opacity: 0, y: 20 }}
-            animate={visibleSections['study-feature'] ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6 }}
-            className="mb-16 group cursor-pointer p-8 rounded-2xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] transition-all duration-300 backdrop-blur-sm overflow-hidden relative"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-500 opacity-0 group-hover:opacity-10 transition-opacity pointer-events-none" />
-            <div className="relative z-10">
-              <div className="text-5xl mb-6">✨</div>
-              <h4 className="text-2xl font-bold mb-3">Study Tool</h4>
-              <p className="text-slate-400 text-base leading-relaxed mb-6">
-                Smart flashcard system with SM-2 spaced repetition and 250+ cards across subjects
-              </p>
-              <div className="mt-8 grid grid-cols-3 gap-4">
-                {FLASHCARDS.map((card) => (
-                  <div
-                    key={card.term}
-                    className={`p-6 rounded-lg border border-white/10 bg-gradient-to-br ${card.color} opacity-10 hover:opacity-20 transition cursor-pointer group`}
-                  >
-                    <p className="text-slate-300 font-semibold">{card.term}</p>
-                    <p className="text-xs text-slate-400 mt-2">{card.difficulty}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Physics Simulator Feature */}
-          <motion.div
-            id="physics-feature"
-            data-observe
-            initial={{ opacity: 0, y: 20 }}
-            animate={visibleSections['physics-feature'] ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6 }}
-            className="group cursor-pointer p-8 rounded-2xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] transition-all duration-300 backdrop-blur-sm overflow-hidden relative"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 opacity-0 group-hover:opacity-10 transition-opacity pointer-events-none" />
-            <div className="relative z-10">
-              <div className="text-5xl mb-6">⚛️</div>
-              <h4 className="text-2xl font-bold mb-3">Physics Simulator</h4>
-              <p className="text-slate-400 text-base leading-relaxed mb-6">
-                Interactive 3D physics simulations with real-time parameter controls and visualizations
-              </p>
-              <div className="mt-8 bg-white/5 rounded-lg p-6 border border-white/10 space-y-4">
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <label className="text-sm text-slate-300">Velocity</label>
-                    <span className="text-sm font-mono text-slate-300">{sliderValues.velocity.toFixed(1)} m/s</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={sliderValues.velocity}
-                    onChange={(e) => handleSliderChange('velocity', parseFloat(e.target.value))}
-                    className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
-                  />
-                </div>
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <label className="text-sm text-slate-300">B Field</label>
-                    <span className="text-sm font-mono text-slate-300">{sliderValues.bField.toFixed(2)} T</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="2"
-                    step="0.1"
-                    value={sliderValues.bField}
-                    onChange={(e) => handleSliderChange('bField', parseFloat(e.target.value))}
-                    className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
-                  />
-                </div>
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <label className="text-sm text-slate-300">Charge</label>
-                    <span className="text-sm font-mono text-slate-300">{sliderValues.charge.toFixed(2)} × 10⁻¹⁹ C</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="3"
-                    step="0.1"
-                    value={sliderValues.charge}
-                    onChange={(e) => handleSliderChange('charge', parseFloat(e.target.value))}
-                    className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
-                  />
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </motion.section>
-
-      {/* CTA Section */}
-      <motion.section
-        id="cta"
-        data-observe
-        className="py-32 relative z-10"
-        initial={{ opacity: 0 }}
-        animate={visibleSections['cta'] ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={visibleSections['cta'] ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6 }}
-            className="p-16 rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl hover:bg-white/[0.05] transition-all duration-300"
-          >
-            <h3 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-              Ready to ace your exams <br /> and get into your dream school?
-            </h3>
-            <p className="text-slate-300 mb-10 text-lg leading-relaxed">
-              Join thousands of students using Propel to master AP exams, plan college applications, and study smarter.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/signup"
-                className="px-10 py-3 bg-white text-black rounded-full font-semibold hover:bg-slate-100 transition shadow-xl hover:shadow-2xl inline-block"
-              >
-                Start Free Today
-              </Link>
-              <Link
-                href="/login"
-                className="px-10 py-3 border border-white/30 rounded-full font-semibold hover:bg-white/10 hover:border-white/50 transition text-white"
-              >
-                Already have an account
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </motion.section>
-
-      {/* Footer */}
-      <footer className="border-t border-white/5 py-16 mt-32 relative z-10">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center text-slate-500 text-sm">
-            <p>&copy; 2025 Propel. All rights reserved.</p>
-            <p className="mt-3 text-slate-600">Free tier • Premium starting at $7/month</p>
+        {/* LOGO ROW */}
+        <div className="logo-row">
+          <p className="logo-row-label">Covering all major AP subjects</p>
+          <div className="logos">
+            <span className="logo-item"><span className="logo-dot"></span>AP Physics</span>
+            <span className="logo-item"><span className="logo-dot"></span>AP Calculus</span>
+            <span className="logo-item"><span className="logo-dot"></span>AP Chemistry</span>
+            <span className="logo-item"><span className="logo-dot"></span>AP Biology</span>
+            <span className="logo-item"><span className="logo-dot"></span>AP CS Principles</span>
+            <span className="logo-item"><span className="logo-dot"></span>AP Literature</span>
           </div>
         </div>
-      </footer>
-    </div>
+
+        <hr className="section-divider" />
+
+        {/* FEATURE 1: College Calculator */}
+        <section className="feature-section" id="features">
+          <div className="feature-text">
+            <p className="feature-label">College Admissions</p>
+            <h2 className="feature-title">Know your odds at <span style={{color: 'var(--accent)'}}>every school</span></h2>
+            <p className="feature-desc">
+              Our AI-powered admissions calculator uses real acceptance rates across
+              30+ universities to give you an honest, data-driven match score — reach,
+              target, and safety.
+            </p>
+            <ul className="feature-list">
+              <li>Real acceptance rate data for 30+ top universities</li>
+              <li>AI-powered school matching and recommendations</li>
+              <li>Track reach, target, and safety schools in one view</li>
+              <li>Updated annually with the latest admissions data</li>
+            </ul>
+            <br/>
+            <Link href="/signup" className="feature-link">Try the calculator →</Link>
+          </div>
+
+          <div className="feature-visual">
+            <div className="card-dark">
+              <div className="card-glow"></div>
+              <div style={{fontSize:'12px', fontWeight:'600', color:'var(--text-subtle)', textTransform:'uppercase', letterSpacing:'0.8px', marginBottom:'16px'}}>Your School List</div>
+              <div className="college-grid">
+                <div className="college-card">
+                  <div className="college-name">MIT</div>
+                  <div className="college-rate">
+                    <span>3.9% admit</span>
+                    <span className="rate-badge rate-reach">Reach</span>
+                  </div>
+                </div>
+                <div className="college-card">
+                  <div className="college-name">UC San Diego</div>
+                  <div className="college-rate">
+                    <span>24% admit</span>
+                    <span className="rate-badge rate-target">Target</span>
+                  </div>
+                </div>
+                <div className="college-card">
+                  <div className="college-name">UChicago</div>
+                  <div className="college-rate">
+                    <span>5.4% admit</span>
+                    <span className="rate-badge rate-reach">Reach</span>
+                  </div>
+                </div>
+                <div className="college-card">
+                  <div className="college-name">Georgia Tech</div>
+                  <div className="college-rate">
+                    <span>17% admit</span>
+                    <span className="rate-badge rate-target">Target</span>
+                  </div>
+                </div>
+                <div className="college-card">
+                  <div className="college-name">U of Michigan</div>
+                  <div className="college-rate">
+                    <span>18% admit</span>
+                    <span className="rate-badge rate-target">Target</span>
+                  </div>
+                </div>
+                <div className="college-card">
+                  <div className="college-name">ASU Barrett</div>
+                  <div className="college-rate">
+                    <span>88% admit</span>
+                    <span className="rate-badge rate-safety">Safety</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FEATURE 2: AP Exam Prep */}
+        <section className="feature-section reverse" id="tools">
+          <div className="feature-text">
+            <p className="feature-label">AP Exam Prep</p>
+            <h2 className="feature-title">Real FRQs with <span style={{color: 'var(--accent)'}}>real solutions</span></h2>
+            <p className="feature-desc">
+              50+ authentic AP free-response questions across 5 subjects, each with
+              step-by-step solutions, hints, and instant feedback. Practice exactly what
+              shows up on test day.
+            </p>
+            <ul className="feature-list">
+              <li>Full solutions with detailed worked examples</li>
+              <li>Hints system — get unstuck without giving it away</li>
+              <li>Track which topics need the most work</li>
+              <li>Physics, Calc, Chem, Bio, and CSP covered</li>
+            </ul>
+            <br/>
+            <Link href="/signup" className="feature-link">Start practicing →</Link>
+          </div>
+
+          <div className="feature-visual">
+            <div className="card-dark">
+              <div className="card-glow"></div>
+              <div className="terminal">
+                <div className="terminal-bar">
+                  <div className="dot dot-red"></div>
+                  <div className="dot dot-yellow"></div>
+                  <div className="dot dot-green"></div>
+                  <span style={{fontSize:'11px', color:'var(--text-subtle)', marginLeft:'8px', fontFamily:"'JetBrains Mono',monospace"}}>AP Physics 2 · FRQ #14</span>
+                </div>
+                <div className="terminal-body">
+                  <div><span className="t-dim">Q</span> <span className="t-white">A proton moves through a uniform</span></div>
+                  <div><span className="t-dim"> </span> <span className="t-white">magnetic field B = 0.40 T into</span></div>
+                  <div><span className="t-dim"> </span> <span className="t-white">the page. v = 3×10⁶ m/s, west.</span></div>
+                  <div><span className="t-dim"> </span></div>
+                  <div><span className="t-dim">→</span> <span className="t-violet">Find the magnitude of F</span></div>
+                  <div><span className="t-dim"> </span></div>
+                  <div><span className="t-dim">#</span> <span className="t-muted">F = qvB sin(θ)</span></div>
+                  <div><span className="t-dim">#</span> <span className="t-muted">F = (1.6×10⁻¹⁹)(3×10⁶)(0.40)(1)</span></div>
+                  <div><span className="t-dim">#</span> <span className="t-green">F = 1.92 × 10⁻¹³ N ✓</span></div>
+                  <div><span className="t-dim"> </span></div>
+                  <div><span className="t-dim">→</span> <span className="t-violet">Direction of force?</span></div>
+                  <div><span className="t-dim">#</span> <span className="t-amber">Right-hand rule: v west × B into page</span></div>
+                  <div><span className="t-dim">#</span> <span className="t-green">→ Force directed SOUTH ✓</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FEATURE 3: Study Tool */}
+        <section className="feature-section">
+          <div className="feature-text">
+            <p className="feature-label">Smart Studying</p>
+            <h2 className="feature-title">Spaced repetition <span style={{color: 'var(--accent)'}}>that actually works</span></h2>
+            <p className="feature-desc">
+              250+ pre-built study cards with SM-2 spaced repetition. The algorithm
+              schedules reviews right before you&apos;d forget — so you retain more with
+              less time spent.
+            </p>
+            <ul className="feature-list">
+              <li>SM-2 algorithm — proven memory science</li>
+              <li>250+ cards across AP subjects and college prep</li>
+              <li>Tracks your confidence per card, per topic</li>
+              <li>Add your own cards to any deck</li>
+            </ul>
+            <br/>
+            <Link href="/signup" className="feature-link">Try the study tool →</Link>
+          </div>
+
+          <div className="feature-visual">
+            <div className="card-dark">
+              <div className="card-glow"></div>
+              <div className="flashcard-wrap">
+                <div className="flashcard">
+                  <div className="flashcard-q">AP Physics 2 · Electromagnetism</div>
+                  <div className="flashcard-text">What is the relationship between electric field strength and the distance from a point charge?</div>
+                </div>
+              </div>
+              <div style={{fontSize:'12px', color:'var(--text-subtle)', marginBottom:'12px', textAlign:'center'}}>How well did you know this?</div>
+              <div style={{display:'flex', gap:'8px', marginBottom:'20px'}}>
+                <button style={{flex:1, background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.25)', color:'#f87171', borderRadius:'8px', padding:'8px', fontFamily:"'Outfit',sans-serif", fontSize:'13px', cursor:'pointer'}}>Forgot</button>
+                <button style={{flex:1, background:'rgba(251,191,36,0.1)', border:'1px solid rgba(251,191,36,0.2)', color:'#fbbf24', borderRadius:'8px', padding:'8px', fontFamily:"'Outfit',sans-serif", fontSize:'13px', cursor:'pointer'}}>Hard</button>
+                <button style={{flex:1, background:'rgba(52,211,153,0.1)', border:'1px solid rgba(52,211,153,0.2)', color:'#34d399', borderRadius:'8px', padding:'8px', fontFamily:"'Outfit',sans-serif", fontSize:'13px', cursor:'pointer'}}>Got it</button>
+                <button style={{flex:1, background:'rgba(124,58,237,0.15)', border:'1px solid rgba(124,58,237,0.3)', color:'#a78bfa', borderRadius:'8px', padding:'8px', fontFamily:"'Outfit',sans-serif", fontSize:'13px', cursor:'pointer'}}>Easy</button>
+              </div>
+              <div className="subject-tags">
+                <span className="tag tag-active">Physics 2</span>
+                <span className="tag">Calculus AB</span>
+                <span className="tag">Chemistry</span>
+                <span className="tag">CSP</span>
+                <span className="tag">+ 1 more</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FEATURE 4: Physics Simulator */}
+        <section className="feature-section reverse">
+          <div className="feature-text">
+            <p className="feature-label">Physics Simulator</p>
+            <h2 className="feature-title">See the physics <span style={{color: 'var(--accent)'}}>come alive</span></h2>
+            <p className="feature-desc">
+              Interactive 3D physics simulations with real-time parameter controls.
+              Adjust variables and watch how the system responds — perfect for building
+              intuition before the exam.
+            </p>
+            <ul className="feature-list">
+              <li>Real-time 3D visualizations with adjustable parameters</li>
+              <li>Covers E&M, optics, waves, quantum, and mechanics</li>
+              <li>Linked to specific AP Physics 2 learning objectives</li>
+              <li>No download needed — runs in your browser</li>
+            </ul>
+            <br/>
+            <Link href="/signup" className="feature-link">Open the simulator →</Link>
+          </div>
+
+          <div className="feature-visual">
+            <div className="card-dark">
+              <div className="card-glow"></div>
+              <div style={{fontSize:'12px', fontWeight:'600', color:'var(--text-subtle)', textTransform:'uppercase', letterSpacing:'0.8px', marginBottom:'14px'}}>Magnetic Force on Moving Charge</div>
+              <div className="sim-canvas">
+                <div className="sim-grid"></div>
+                <div className="sim-trail"></div>
+                <div className="sim-orb"></div>
+              </div>
+              <div style={{display:'flex', flexDirection:'column', gap:'12px'}}>
+                <div className="sim-controls">
+                  <span className="sim-control-label">Velocity</span>
+                  <input type="range" className="dark-range" defaultValue="60" style={{flex:1, margin:'0 12px'}} />
+                  <span className="sim-control-val">3.0×10⁶ m/s</span>
+                </div>
+                <div className="sim-controls">
+                  <span className="sim-control-label">B Field</span>
+                  <input type="range" className="dark-range" defaultValue="40" style={{flex:1, margin:'0 12px'}} />
+                  <span className="sim-control-val">0.40 T</span>
+                </div>
+                <div className="sim-controls">
+                  <span className="sim-control-label">Charge</span>
+                  <input type="range" className="dark-range" defaultValue="100" style={{flex:1, margin:'0 12px'}} />
+                  <span className="sim-control-val">+1e</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FEATURES ICON GRID */}
+        <div className="features-grid-section">
+          <div className="features-grid">
+            <div className="feat-card">
+              <div className="feat-icon">🎓</div>
+              <h3>College Calculator</h3>
+              <p>Real acceptance rates and AI school matching for 30+ universities.</p>
+            </div>
+            <div className="feat-card">
+              <div className="feat-icon">📚</div>
+              <h3>AP Exam Prep</h3>
+              <p>50+ real FRQs with full solutions, hints, and progress tracking.</p>
+            </div>
+            <div className="feat-card">
+              <div className="feat-icon">🔬</div>
+              <h3>Physics Simulator</h3>
+              <p>Interactive 3D physics simulations with real-time parameter control.</p>
+            </div>
+            <div className="feat-card">
+              <div className="feat-icon">✨</div>
+              <h3>Study Tool</h3>
+              <p>SM-2 spaced repetition with 250+ cards to maximize retention.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* CTA SECTION */}
+        <section className="cta-section" id="pricing">
+          <div className="cta-inner">
+            <p className="cta-label">Get started today</p>
+            <h2>Ready to ace your exams<br />and get into your dream school?</h2>
+            <p>Join thousands of students using Propel to master AP exams, plan college applications, and study smarter — starting completely free.</p>
+            <div className="cta-buttons">
+              <Link href="/signup" className="btn-cta-primary">Start Free Today</Link>
+              <Link href="/login" className="btn-cta-secondary">Already have an account</Link>
+            </div>
+          </div>
+        </section>
+
+        {/* FOOTER */}
+        <footer>
+          <div className="footer-left">
+            <Link href="/" className="nav-logo" style={{fontSize:'15px'}}>
+              <div className="logo-icon" style={{width:'22px', height:'22px', fontSize:'10px'}}>P</div>
+              Propel
+            </Link>
+            <span className="footer-text">© 2025 Propel. All rights reserved.</span>
+          </div>
+          <div className="footer-links">
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+            <a href="#">Contact</a>
+          </div>
+          <span className="footer-pricing">Free tier • Premium from $7/mo</span>
+        </footer>
+      </main>
+    </>
   );
 }
