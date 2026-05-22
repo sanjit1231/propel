@@ -19,10 +19,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Dark Mode as Default */
-body {
-  @apply bg-gradient-to-br from-slate-950 to-blue-950 text-slate-100 min-h-screen;
-  background-attachment: fixed;
+/* Dark Mode as Default - Zeabur Style */
+html, body {
+  background-color: #0a0a0a !important;
+  color: white;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
 }
 
 /* Remove default dark mode behavior - we use Tailwind dark class */
