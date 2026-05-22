@@ -31,31 +31,26 @@ export default function Login() {
   };
 
   return (
-    <motion.div initial="initial" animate="animate" variants={pageVariants} className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated Background */}
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-        className="absolute top-20 -right-20 w-80 h-80 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full filter blur-3xl opacity-20"
-      />
-
-      <motion.div
-        animate={{ rotate: -360 }}
-        transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-        className="absolute -bottom-20 -left-20 w-80 h-80 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full filter blur-3xl opacity-20"
-      />
+    <motion.div initial="initial" animate="animate" variants={pageVariants} className="min-h-screen bg-[#0a0e27] flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Premium Gradient Background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-b from-blue-600 via-purple-600 to-transparent rounded-full filter blur-3xl opacity-30 animate-pulse" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-t from-purple-600 via-blue-600 to-transparent rounded-full filter blur-3xl opacity-30 animate-pulse" style={{ animationDelay: '1s' }} />
+      </div>
 
       {/* Form Container */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="glass-card w-full max-w-md relative z-10"
+        className="w-full max-w-md relative z-10 p-8 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl"
       >
         {/* Branding */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold gradient-text mb-2">Propel</h1>
-          <p className="text-slate-400">Welcome back</p>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+            Propel
+          </h1>
+          <p className="text-slate-400 text-sm">Welcome back to your success journey</p>
         </div>
 
         {/* Error Message */}
@@ -63,7 +58,7 @@ export default function Login() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-red-500/20 border border-red-500/50 text-red-300 p-4 rounded-lg mb-6 text-sm"
+            className="bg-red-500/10 border border-red-500/30 text-red-300 p-3 rounded-lg mb-6 text-sm"
           >
             {error}
           </motion.div>
@@ -79,7 +74,7 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="glass-input"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all"
             />
           </motion.div>
 
@@ -91,7 +86,7 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="glass-input"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all"
             />
           </motion.div>
 
@@ -103,11 +98,11 @@ export default function Login() {
             whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={loading}
-            className="w-full glass-btn py-3 font-semibold mt-6 disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full py-3 bg-white text-[#0a0e27] rounded-lg font-semibold mt-6 hover:bg-slate-100 disabled:opacity-50 flex items-center justify-center gap-2 transition-all"
           >
             {loading ? (
               <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-900 rounded-full animate-spin" />
                 Signing in...
               </>
             ) : (
@@ -116,18 +111,11 @@ export default function Login() {
           </motion.button>
         </form>
 
-        {/* Divider */}
-        <div className="my-6 flex items-center gap-4">
-          <div className="flex-1 h-px bg-white/10" />
-          <span className="text-slate-400 text-sm">or</span>
-          <div className="flex-1 h-px bg-white/10" />
-        </div>
-
         {/* Sign Up Link */}
-        <p className="text-center text-slate-400">
+        <p className="text-center text-slate-400 text-sm mt-6">
           Don't have an account?{' '}
-          <Link href="/signup" className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">
-            Sign up
+          <Link href="/signup" className="text-white font-semibold hover:text-slate-100 transition-colors">
+            Create one
           </Link>
         </p>
       </motion.div>
