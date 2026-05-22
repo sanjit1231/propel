@@ -34,7 +34,7 @@ export default function Home() {
   ];
 
   return (
-    <motion.div initial="initial" animate="animate" exit="exit" variants={pageVariants} className="min-h-screen bg-black text-white overflow-hidden" style={{ backgroundColor: '#0a0a0a' }}>
+    <motion.div initial="initial" animate="animate" exit="exit" variants={pageVariants} className="min-h-screen bg-black overflow-hidden" style={{ backgroundColor: '#0a0a0a', color: '#ffffff' }}>
       {/* Premium Zeabur-style Gradient Background */}
       <div className="fixed inset-0 pointer-events-none">
         {/* Top right glow - vibrant purple */}

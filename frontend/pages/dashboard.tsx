@@ -59,7 +59,7 @@ export default function Dashboard() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-black text-white" style={{ backgroundColor: '#0a0a0a' }}>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-black" style={{ backgroundColor: '#0a0a0a', color: '#ffffff' }}>
       {/* Premium Zeabur Background */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-b from-violet-600 via-purple-600 to-transparent rounded-full filter blur-3xl opacity-40 animate-float" />

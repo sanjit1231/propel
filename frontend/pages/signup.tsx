@@ -48,7 +48,7 @@ export default function Signup() {
   ];
 
   return (
-    <motion.div initial="initial" animate="animate" variants={pageVariants} className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden" style={{ backgroundColor: '#0a0a0a' }}>
+    <motion.div initial="initial" animate="animate" variants={pageVariants} className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden" style={{ backgroundColor: '#0a0a0a', color: '#ffffff' }}>
       {/* Premium Zeabur Gradient Background */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-b from-violet-600 via-purple-600 to-transparent rounded-full filter blur-3xl opacity-40 animate-float" />
