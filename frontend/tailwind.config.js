@@ -8,19 +8,19 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#3B82F6',
-        accent: '#A855F7',
-        // Dark mode background
+        primary: '#7C3AED',
+        accent: '#EC4899',
+        // Zeabur dark backgrounds
         bg: {
-          primary: '#0F172A',
-          secondary: '#1E293B',
-          tertiary: '#334155',
+          primary: '#0a0a0a',
+          secondary: '#0f0f1f',
+          tertiary: '#1a1a2e',
         },
       },
       backgroundImage: {
-        'gradient-primary': 'linear-gradient(135deg, #3B82F6 0%, #A855F7 50%, #EC4899 100%)',
-        'gradient-blue': 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
-        'gradient-purple': 'linear-gradient(135deg, #A855F7 0%, #EC4899 100%)',
+        'gradient-primary': 'linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)',
+        'gradient-zeabur': 'linear-gradient(135deg, #5B21B6 0%, #7C3AED 30%, #EC4899 100%)',
+        'gradient-glow': 'radial-gradient(circle, #7C3AED 0%, transparent 70%)',
       },
       backdropBlur: {
         xs: '2px',
@@ -31,9 +31,10 @@ module.exports = {
         xl: '24px',
       },
       boxShadow: {
-        'glow-blue': '0 0 20px rgba(59, 130, 246, 0.4)',
-        'glow-purple': '0 0 20px rgba(168, 85, 247, 0.4)',
-        'glow-pink': '0 0 20px rgba(236, 72, 153, 0.4)',
+        'glow-blue': '0 0 40px rgba(99, 102, 241, 0.6)',
+        'glow-purple': '0 0 50px rgba(124, 58, 237, 0.7)',
+        'glow-pink': '0 0 40px rgba(236, 72, 153, 0.6)',
+        'glow-combined': '0 0 60px rgba(124, 58, 237, 0.5), 0 0 40px rgba(236, 72, 153, 0.4)',
         'glow-green': '0 0 20px rgba(16, 185, 129, 0.4)',
         'glass': '0 8px 32px rgba(0, 0, 0, 0.3)',
       },
@@ -58,6 +59,14 @@ module.exports = {
           '0%': { backgroundPosition: '-1000px 0' },
           '100%': { backgroundPosition: '1000px 0' },
         },
+        glow: {
+          '0%, 100%': { opacity: '0.6', transform: 'scale(1)' },
+          '50%': { opacity: '0.8', transform: 'scale(1.05)' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-20px)' },
+        },
       },
       animation: {
         fadeIn: 'fadeIn 0.4s ease-out',
@@ -65,6 +74,8 @@ module.exports = {
         slideDown: 'slideDown 0.4s ease-out',
         slideRight: 'slideRight 0.4s ease-out',
         shimmer: 'shimmer 2s infinite',
+        glow: 'glow 4s ease-in-out infinite',
+        float: 'float 6s ease-in-out infinite',
       },
     },
   },

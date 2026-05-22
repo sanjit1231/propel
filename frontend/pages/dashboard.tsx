@@ -4,42 +4,33 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { clearAuthToken } from '@/utils/api';
+import { containerVariants, itemVariants } from '@/animations/transitions';
 
 const TOOLS = [
   {
     title: 'College Calculator',
     icon: '🎓',
     href: '/college-calculator',
-    desc: 'Find your perfect schools based on SAT & GPA',
-    color: 'from-blue-400 to-blue-600',
+    desc: '30+ real colleges with AI-powered matching',
   },
   {
     title: 'AP Exam Prep',
     icon: '📚',
     href: '/ap-prep',
-    desc: '270+ FRQs with hints across 9 STEM APs',
-    color: 'from-green-400 to-green-600',
+    desc: '50+ FRQs across 5 subjects with solutions',
   },
   {
     title: 'Physics Simulator',
     icon: '⚛️',
     href: '/physics-simulator',
     desc: 'Interactive 3D physics simulations',
-    color: 'from-purple-400 to-purple-600',
   },
   {
     title: 'Study Tool',
-    icon: '💡',
+    icon: '✨',
     href: '/study-tool',
-    desc: 'Smart flashcards with spaced repetition',
-    color: 'from-orange-400 to-orange-600',
+    desc: '250+ cards with spaced repetition',
   },
-];
-
-const STATS = [
-  { label: 'FRQs Completed', value: '12', icon: '📝', bgColor: 'bg-blue-50', textColor: 'text-blue-600', borderColor: 'border-blue-500' },
-  { label: 'Cards Mastered', value: '87', icon: '✨', bgColor: 'bg-green-50', textColor: 'text-green-600', borderColor: 'border-green-500' },
-  { label: 'Current Streak', value: '7 days', icon: '🔥', bgColor: 'bg-orange-50', textColor: 'text-orange-600', borderColor: 'border-orange-500' },
 ];
 
 export default function Dashboard() {
@@ -53,7 +44,6 @@ export default function Dashboard() {
       router.push('/login');
       return;
     }
-    // Get user name from localStorage or API
     const firstName = localStorage.getItem('firstName') || 'Student';
     setUserName(firstName);
     setLoading(false);
@@ -69,122 +59,86 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-[#0a0a0a] text-white">
+      {/* Premium Zeabur Background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-b from-violet-600 via-purple-600 to-transparent rounded-full filter blur-3xl opacity-40 animate-float" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-t from-purple-600 via-violet-600 to-transparent rounded-full filter blur-3xl opacity-40 animate-float" style={{ animationDelay: '2s' }} />
+      </div>
+
       {/* Navigation */}
-      <nav className="bg-white shadow-lg">
+      <nav className="fixed top-0 w-full z-50 border-b border-white/10 backdrop-blur-xl bg-[#0a0a0a]/90">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-2"
-          >
-            <span className="text-2xl">🚀</span>
-            <h1 className="text-2xl font-bold text-indigo-600">Propel</h1>
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">
+              Propel
+            </h1>
           </motion.div>
 
           <button
             onClick={handleLogout}
-            className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition font-medium"
+            className="px-4 py-2 text-slate-300 hover:text-white border border-white/10 hover:border-white/30 rounded-lg transition font-medium text-sm"
           >
             Logout
           </button>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-12"
-        >
-          <h2 className="text-5xl font-bold text-gray-900 mb-2">
-            Welcome back, {userName}! 👋
+      {/* Main Content */}
+      <motion.div variants={containerVariants} initial="initial" animate="animate" className="max-w-7xl mx-auto px-6 py-24 relative z-10">
+        {/* Welcome Section */}
+        <motion.div variants={itemVariants} className="mb-16">
+          <h2 className="text-5xl md:text-6xl font-bold mb-3">
+            Welcome back, <span className="bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">{userName}</span>
           </h2>
-          <p className="text-xl text-gray-600">
-            Your path to academic success continues here
-          </p>
+          <p className="text-xl text-slate-300">Continue your path to academic excellence</p>
         </motion.div>
 
         {/* Tools Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {TOOLS.map((tool, i) => (
-            <motion.div
-              key={tool.href}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              whileHover={{ y: -8 }}
-              className="h-full"
-            >
+            <motion.div key={tool.href} variants={itemVariants} whileHover={{ y: -4 }} className="group">
               <Link href={tool.href} className="block h-full">
-                <div className="bg-white rounded-lg shadow-lg hover:shadow-2xl transition-all h-full p-6 cursor-pointer overflow-hidden relative">
-                  {/* Gradient background accent */}
-                  <div className={`absolute -right-10 -top-10 w-32 h-32 bg-gradient-to-br ${tool.color} opacity-5 rounded-full`}></div>
+                <div className="h-full p-6 rounded-2xl border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] transition-all duration-300 backdrop-blur-sm cursor-pointer relative overflow-hidden">
+                  {/* Hover gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-hover:opacity-5 transition-opacity pointer-events-none" />
 
                   <div className="relative z-10">
-                    <div className="text-5xl mb-3">{tool.icon}</div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">{tool.title}</h3>
-                    <p className="text-gray-600 text-sm">{tool.desc}</p>
-                  </div>
-
-                  {/* Click indicator */}
-                  <div className="mt-4 pt-4 border-t border-gray-200">
-                    <span className="text-indigo-600 font-semibold text-sm flex items-center gap-1">
-                      Open →
-                    </span>
+                    <div className="text-4xl mb-3">{tool.icon}</div>
+                    <h3 className="text-lg font-bold mb-2">{tool.title}</h3>
+                    <p className="text-slate-400 text-sm leading-relaxed">{tool.desc}</p>
+                    <div className="mt-4 text-slate-300 text-sm font-medium flex items-center gap-1 group-hover:text-white transition-colors">
+                      Open <span className="group-hover:translate-x-1 transition-transform">→</span>
+                    </div>
                   </div>
                 </div>
               </Link>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Stats Section */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="mb-12"
-        >
-          <h3 className="text-2xl font-bold text-gray-900 mb-6">Your Progress</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {STATS.map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5 + i * 0.1 }}
-                className={`${stat.bgColor} p-6 rounded-lg border-l-4 ${stat.borderColor} hover:shadow-lg transition`}
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium">{stat.label}</p>
-                    <p className={`text-4xl font-bold ${stat.textColor} mt-2`}>{stat.value}</p>
-                  </div>
-                  <span className="text-3xl">{stat.icon}</span>
-                </div>
-              </motion.div>
-            ))}
+        <motion.div variants={itemVariants} className="grid grid-cols-3 gap-6">
+          <div className="p-6 rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-sm">
+            <div className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent mb-2">
+              12
+            </div>
+            <p className="text-slate-400 text-sm">FRQs Completed</p>
+          </div>
+          <div className="p-6 rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-sm">
+            <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-purple-500 bg-clip-text text-transparent mb-2">
+              87
+            </div>
+            <p className="text-slate-400 text-sm">Cards Mastered</p>
+          </div>
+          <div className="p-6 rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-sm">
+            <div className="text-4xl font-bold bg-gradient-to-r from-pink-400 to-pink-500 bg-clip-text text-transparent mb-2">
+              7
+            </div>
+            <p className="text-slate-400 text-sm">Day Streak 🔥</p>
           </div>
         </motion.div>
-
-        {/* Quick Tips */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg p-8 text-white"
-        >
-          <h3 className="text-2xl font-bold mb-3">💡 Study Tips</h3>
-          <ul className="space-y-2 text-indigo-50">
-            <li>✓ Complete 5 FRQs per day to master AP concepts</li>
-            <li>✓ Review flashcards during short breaks (5-10 minutes)</li>
-            <li>✓ Use the physics simulator to understand concepts visually</li>
-            <li>✓ Target 3-4 colleges in each category (reach, target, likely)</li>
-          </ul>
-        </motion.div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

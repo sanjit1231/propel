@@ -48,18 +48,18 @@ export default function Signup() {
   ];
 
   return (
-    <motion.div initial="initial" animate="animate" variants={pageVariants} className="min-h-screen bg-[#0a0e27] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Premium Gradient Background */}
+    <motion.div initial="initial" animate="animate" variants={pageVariants} className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Premium Zeabur Gradient Background */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-b from-blue-600 via-purple-600 to-transparent rounded-full filter blur-3xl opacity-30 animate-pulse" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-t from-purple-600 via-blue-600 to-transparent rounded-full filter blur-3xl opacity-30 animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-b from-violet-600 via-purple-600 to-transparent rounded-full filter blur-3xl opacity-40 animate-float" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-t from-purple-600 via-violet-600 to-transparent rounded-full filter blur-3xl opacity-40 animate-float" style={{ animationDelay: '2s' }} />
       </div>
 
       {/* Form Container */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="w-full max-w-md relative z-10 p-8 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl">
         {/* Branding */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent mb-2">
             Propel
           </h1>
           <p className="text-slate-400 text-sm">Join thousands of successful students</p>
@@ -96,7 +96,7 @@ export default function Signup() {
             whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-white text-[#0a0e27] rounded-lg font-semibold mt-6 hover:bg-slate-100 disabled:opacity-50 flex items-center justify-center gap-2 transition-all"
+            className="w-full py-3 bg-white text-black rounded-lg font-semibold mt-6 hover:bg-slate-100 disabled:opacity-50 flex items-center justify-center gap-2 transition-all"
           >
             {loading ? (
               <>
