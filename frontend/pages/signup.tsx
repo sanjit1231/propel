@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import axios from 'axios';
+import { pageVariants, containerVariants, itemVariants } from '@/animations/transitions';
 
 export default function Signup() {
   const [email, setEmail] = useState('');
@@ -37,59 +39,96 @@ export default function Signup() {
     }
   };
 
+  const inputFields = [
+    { name: 'firstName', label: 'First Name', type: 'text', placeholder: 'John', value: firstName, onChange: setFirstName },
+    { name: 'lastName', label: 'Last Name', type: 'text', placeholder: 'Doe', value: lastName, onChange: setLastName },
+    { name: 'email', label: 'Email', type: 'email', placeholder: 'you@example.com', value: email, onChange: setEmail },
+    { name: 'password', label: 'Password', type: 'password', placeholder: '••••••••', value: password, onChange: setPassword },
+    { name: 'confirmPassword', label: 'Confirm Password', type: 'password', placeholder: '••••••••', value: confirmPassword, onChange: setConfirmPassword },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h2 className="text-3xl font-bold text-center mb-8 text-gray-900">Sign Up</h2>
-        {error && <div className="bg-red-50 text-red-600 p-4 rounded mb-4">{error}</div>}
+    <motion.div initial="initial" animate="animate" variants={pageVariants} className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Animated Background */}
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+        className="absolute top-20 -right-20 w-80 h-80 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full filter blur-3xl opacity-20"
+      />
+
+      <motion.div
+        animate={{ rotate: -360 }}
+        transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+        className="absolute -bottom-20 -left-20 w-80 h-80 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full filter blur-3xl opacity-20"
+      />
+
+      {/* Form Container */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="glass-card w-full max-w-md relative z-10">
+        {/* Branding */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold gradient-text mb-2">Propel</h1>
+          <p className="text-slate-400">Start your success journey</p>
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-red-500/20 border border-red-500/50 text-red-300 p-4 rounded-lg mb-6 text-sm">
+            {error}
+          </motion.div>
+        )}
+
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            placeholder="First Name"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-          <input
-            type="text"
-            placeholder="Last Name"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-          <button
+          {inputFields.map((field, idx) => (
+            <motion.div key={field.name} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: idx * 0.05 }}>
+              <label className="block text-sm font-medium text-slate-300 mb-2">{field.label}</label>
+              <input
+                type={field.type}
+                placeholder={field.placeholder}
+                value={field.value}
+                onChange={(e) => field.onChange(e.target.value)}
+                required
+                className="glass-input"
+              />
+            </motion.div>
+          ))}
+
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={loading}
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+            className="w-full glass-btn py-3 font-semibold mt-6 disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            {loading ? 'Loading...' : 'Sign Up'}
-          </button>
+            {loading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Creating Account...
+              </>
+            ) : (
+              'Create Account'
+            )}
+          </motion.button>
         </form>
-        <p className="text-center mt-4 text-gray-600">
-          Already have an account? <Link href="/login" className="text-indigo-600 hover:underline">Login</Link>
+
+        {/* Divider */}
+        <div className="my-6 flex items-center gap-4">
+          <div className="flex-1 h-px bg-white/10" />
+          <span className="text-slate-400 text-sm">or</span>
+          <div className="flex-1 h-px bg-white/10" />
+        </div>
+
+        {/* Login Link */}
+        <p className="text-center text-slate-400">
+          Already have an account?{' '}
+          <Link href="/login" className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">
+            Log in
+          </Link>
         </p>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

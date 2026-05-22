@@ -19,11 +19,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Dark Mode as Default */
+body {
+  @apply bg-gradient-to-br from-slate-950 to-blue-950 text-slate-100 min-h-screen;
+  background-attachment: fixed;
+}
+
+/* Remove default dark mode behavior - we use Tailwind dark class */
 @media (prefers-color-scheme: dark) {
-  body {
-    color: #fff;
-    background: #000;
-  }
+  /* Override media query default */
 }
 
 /* Custom animations */
@@ -66,11 +70,147 @@ body {
   background: linear-gradient(to right, #a855f7, #ec4899);
 }
 
-/* Card styles */
+/* ===== GLASSMORPHISM COMPONENTS ===== */
+
+/* Glassmorphic Card */
+.glass-card {
+  @apply bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-6 shadow-2xl;
+  background-color: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-card:hover {
+  @apply backdrop-blur-2xl border-white/30 shadow-glow-blue transition-all duration-300;
+  background-color: rgba(30, 41, 59, 0.8);
+}
+
+/* Glassmorphic Button */
+.glass-btn {
+  @apply px-6 py-2 rounded-lg font-semibold text-white transition-all duration-300;
+  background: linear-gradient(135deg, #3B82F6 0%, #A855F7 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+}
+
+.glass-btn:hover {
+  @apply scale-105 shadow-glow-blue;
+  box-shadow: 0 8px 40px rgba(59, 130, 246, 0.5);
+}
+
+.glass-btn:active {
+  @apply scale-95;
+}
+
+/* Glassmorphic Input */
+.glass-input {
+  @apply w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-slate-400;
+  @apply focus:outline-none focus:border-white/40 focus:bg-white/20 transition-all duration-300;
+  backdrop-filter: blur(10px);
+}
+
+.glass-input::placeholder {
+  @apply text-slate-400;
+}
+
+/* Gradient Text */
+.gradient-text {
+  @apply bg-gradient-primary bg-clip-text text-transparent;
+}
+
+.gradient-text-blue {
+  background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-purple {
+  background: linear-gradient(135deg, #A855F7 0%, #EC4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glow Effects */
+.glow-blue {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+}
+
+.glow-purple {
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+}
+
+.glow-pink {
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
+}
+
+.glow-green {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+}
+
+/* Backdrop Blur Utility */
+.backdrop-blur-glass {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Loading Spinner */
+.spinner {
+  @apply inline-block h-8 w-8 animate-spin rounded-full;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #3B82F6;
+}
+
+.spinner-lg {
+  @apply h-12 w-12;
+}
+
+/* ===== CUSTOM CARD STYLES ===== */
+
 .card {
-  @apply bg-white rounded-lg shadow-lg p-6;
+  @apply bg-slate-900 rounded-lg shadow-lg p-6;
 }
 
 .card-hover {
-  @apply card transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+  @apply card transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:shadow-glow-blue;
+}
+
+/* ===== UTILITY CLASSES ===== */
+
+.flex-center {
+  @apply flex items-center justify-center;
+}
+
+.flex-between {
+  @apply flex items-center justify-between;
+}
+
+.absolute-center {
+  @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
+}
+
+/* Container */
+.container-fluid {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* ===== SCROLL STYLING ===== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-700 rounded-full hover:bg-slate-600;
+}
+
+/* ===== SELECTION ===== */
+
+::selection {
+  @apply bg-gradient-primary text-white;
 }
